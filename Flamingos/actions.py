@@ -23,7 +23,6 @@ class EscapeAction(Action):
         raise SystemExit()
 
 
-
 class MovementAction(Action):
     def __init__(self, dx: int, dy: int):
         super().__init__()
@@ -35,9 +34,11 @@ class MovementAction(Action):
         dest_x = entity.x + self.dx
         dest_y = entity.y + self.dy
 
-        if not engine.game_map.in_bounds(dest_x,dest_y):
+        if not engine.game_map.in_bounds(dest_x, dest_y):
             return  # skips action out of bounds
         if not engine.game_map.tiles["walkable"][dest_x, dest_y]:
             return  # skips action block ahead
 
         entity.move(self.dx, self.dy)
+
+        
