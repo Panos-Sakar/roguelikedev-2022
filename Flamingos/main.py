@@ -3,27 +3,38 @@ import tcod
 
 from engine import Engine
 from input_handlers import EventHandler
-from data_classes.game_map import GameMap
+from generators.procgen import generate_dungeon
 from data_classes.entity import Entity
 ART_PATH = 'Assets/Art/'
 
 
 def main() -> None:
-    screen_width = 80
-    screen_height = 50
+    screen_width = map_width = 120
+    screen_height = map_height = 80
 
-    map_width = 80
-    map_height = 45
+    room_max_size = 20
+    room_min_size = 12
+    max_rooms = 30
+
+
+
 
     tileset = tcod.tileset.load_tilesheet(
         ART_PATH + "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
     )
     event_handler = EventHandler()
-    player = Entity(int(screen_width/2), int(screen_height/2), "@", (255, 123, 255))
+    player = Entity(int(screen_width/2), int(screen_height/2), "@", (255, 0, 255))
     npc = Entity(int(screen_width/2) - 5, int(screen_height/2), "@", (255, 255, 0))
     entities = {npc, player}
 
-    game_map = GameMap(map_width, map_height)
+    game_map = generate_dungeon(
+        max_rooms=max_rooms,
+        room_min_size=room_min_size,
+        room_max_size=room_max_size,
+        map_width=map_width,
+        map_height=map_height,
+        player=player
+    )
 
     engine = Engine(entities=entities, event_handler=event_handler, game_map=game_map, player=player)
 

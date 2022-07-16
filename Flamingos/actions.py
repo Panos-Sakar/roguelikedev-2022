@@ -41,4 +41,3 @@ class MovementAction(Action):
 
         entity.move(self.dx, self.dy)
 
-        
