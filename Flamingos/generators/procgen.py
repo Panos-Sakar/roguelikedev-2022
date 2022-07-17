@@ -95,10 +95,27 @@ def generate_dungeon(
             player.x, player.y = new_room.center
         else:  # All rooms after the first.
             # Dig out a tunnel between this room and the previous one.
+
+            # BUGGY CODE TO ADD DOORS, DELETE ALL LINES FROM 99-115 BUT KEEP LINE 112
+            last_tile_wall = False
+            last_x , last_y = 0 , 0
             for x, y in tunnel_between(rooms[-1].center, new_room.center):
-                dungeon.tiles[x, y] = tile_types.floor
+
+                if not last_tile_wall and dungeon.tiles[x, y] == tile_types.wall:
+                    last_tile_wall = True
+                    dungeon.tiles[x, y] = tile_types.door
+                elif last_tile_wall and dungeon.tiles[x, y] == tile_types.floor:
+                    last_tile_wall = False
+                    dungeon.tiles[last_x, last_y] = tile_types.door
+                    dungeon.tiles[x, y] = tile_types.floor
+                else:
+                    dungeon.tiles[x, y] = tile_types.floor # IN CASE OF NOT NEEDING DOORS KEEP THIS LINE ONLY
+
+                last_x = x
+                last_y = y
 
         # Finally, append the new room to the list.
         rooms.append(new_room)
+
 
     return dungeon
