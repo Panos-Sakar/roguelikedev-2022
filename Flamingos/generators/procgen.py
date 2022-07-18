@@ -37,26 +37,40 @@ class RectangularRoom:
                 and self.y1 <= other.y2
                 and self.y2 >= other.y1
         )
-    #     0
-    #   ______
-    # 3 |    |   1
-    #   ------
-    #     2
 
-    def pick_random_wall(self) -> [int, int]:
-        side = random.randint(0, 4)
-        if side == 0:
-            return random.randint(self.x1 + 1, self.x2), self.y1
-        elif side == 1:
-            return self.x2, random.randint(self.y1 + 1, self.y2)
-        elif side == 2:
-            return random.randint(self.x1 + 1, self.x2), self.y2
-        elif side == 3:
-            return self.x1, random.randint(self.y1 + 1, self.y2)
+    def place_doors(self, dungeon: GameMap):
+        last_was_door = False
+        for x in range(self.x1, self.x2+1):
+            if dungeon.tiles[x][self.y1] == tile_types.wall:
+                last_was_door = False
+            if dungeon.tiles[x][self.y1] == tile_types.hallway and not last_was_door:
+                dungeon.tiles[x][self.y1] = tile_types.door
+                last_was_door = True
+        last_was_door = False
+        for x in range(self.x1, self.x2 + 1):
+            if dungeon.tiles[x][self.y2] == tile_types.wall:
+                last_was_door = False
+            if dungeon.tiles[x][self.y2] == tile_types.hallway and not last_was_door:
+                dungeon.tiles[x][self.y2] = tile_types.door
+                last_was_door = True
+        last_was_door = False
+        for y in range(self.y1, self.y2 + 1):
+            if dungeon.tiles[self.x1][y] == tile_types.wall:
+                last_was_door = False
+            if dungeon.tiles[self.x1][y] == tile_types.hallway and not last_was_door:
+                dungeon.tiles[self.x1][y] = tile_types.door
+                last_was_door = True
+        last_was_door = False
+        for y in range(self.y1, self.y2 + 1):
+            if dungeon.tiles[self.x2][y] == tile_types.wall:
+                last_was_door = False
+            if dungeon.tiles[self.x2][y] == tile_types.hallway and not last_was_door:
+                dungeon.tiles[self.x2][y] = tile_types.door
+                last_was_door = True
 
 
 def tunnel_between(
-    start: Tuple[int, int], end: Tuple[int, int]
+        start: Tuple[int, int], end: Tuple[int, int]
 ) -> Iterator[Tuple[int, int]]:
     """Return an L-shaped tunnel between these two points."""
     x1, y1 = start
@@ -76,12 +90,12 @@ def tunnel_between(
 
 
 def generate_dungeon(
-    max_rooms: int,
-    room_min_size: int,
-    room_max_size: int,
-    map_width: int,
-    map_height: int,
-    player: Entity,
+        max_rooms: int,
+        room_min_size: int,
+        room_max_size: int,
+        map_width: int,
+        map_height: int,
+        player: Entity,
 ) -> GameMap:
     """Generate a new dungeon map."""
     dungeon = GameMap(map_width, map_height)
@@ -113,37 +127,25 @@ def generate_dungeon(
             # Dig out a tunnel between this room and the previous one.
 
             # BUGGY CODE TO ADD DOORS, DELETE ALL LINES FROM 99-115 BUT KEEP LINE 112
-            last_tile_wall = False
-            last_x , last_y = 0 , 0
             for x, y in tunnel_between(rooms[-1].center, new_room.center):
-
-                if not last_tile_wall and dungeon.tiles[x, y] == tile_types.wall:
-                    last_tile_wall = True
-                    dungeon.tiles[x, y] = tile_types.door
-                elif last_tile_wall and dungeon.tiles[x, y] == tile_types.floor:
-                    last_tile_wall = False
-                    dungeon.tiles[last_x, last_y] = tile_types.door
-                    dungeon.tiles[x, y] = tile_types.floor
-                else:
-                    dungeon.tiles[x, y] = tile_types.floor # IN CASE OF NOT NEEDING DOORS KEEP THIS LINE ONLY
-
-                last_x = x
-                last_y = y
+                if dungeon.tiles[x, y] == tile_types.wall:
+                    dungeon.tiles[x, y] = tile_types.hallway
 
         # Finally, append the new room to the list.
         rooms.append(new_room)
-
+    for room in rooms:
+        room.place_doors(dungeon)
     return dungeon
 
 # doesnt work pls dont use
 
 
 def generate_dungeon_2(
-    room_min_size: int,
-    room_max_size: int,
-    map_width: int,
-    map_height: int,
-    player: Entity,
+        room_min_size: int,
+        room_max_size: int,
+        map_width: int,
+        map_height: int,
+        player: Entity,
 ) -> GameMap:
     dungeon = GameMap(map_width, map_height)
 
@@ -152,11 +154,11 @@ def generate_dungeon_2(
     room_width = random.randint(room_min_size, room_max_size)
     room_height = random.randint(room_min_size, room_max_size)
 
-    first_room_x = int(map_width/2 - room_width/2)
-    first_room_y = int(map_height/2 - room_height/2)
+    first_room_x = int(map_width / 2 - room_width / 2)
+    first_room_y = int(map_height / 2 - room_height / 2)
 
-    player.x = int(map_width/2)
-    player.y = int(map_height/2)
+    player.x = int(map_width / 2)
+    player.y = int(map_height / 2)
 
     new_room = RectangularRoom(first_room_x, first_room_y, room_width, room_height)
     dungeon.tiles[new_room.inner] = tile_types.floor
@@ -165,10 +167,5 @@ def generate_dungeon_2(
 
     while True:
         dungeon.tiles[new_room.pick_random_wall()] = tile_types.door
-
-
-
-
-
 
     return dungeon

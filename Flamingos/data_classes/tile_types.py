@@ -53,3 +53,10 @@ door = new_tile(
     dark=(ord(" "), (164, 120, 0), (102, 51, 0)),
     light=(ord(" "), (255, 188, 0), (153, 76, 0)),
 )
+
+hallway = new_tile(
+    walkable=True,
+    transparent=True,
+    dark=(ord(" "), (255, 255, 255), (128, 128, 128)),
+    light=(ord(" "), (255, 255, 255), (200, 180, 50)),
+)
