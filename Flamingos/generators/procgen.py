@@ -37,6 +37,22 @@ class RectangularRoom:
                 and self.y1 <= other.y2
                 and self.y2 >= other.y1
         )
+    #     0
+    #   ______
+    # 3 |    |   1
+    #   ------
+    #     2
+
+    def pick_random_wall(self) -> [int, int]:
+        side = random.randint(0, 4)
+        if side == 0:
+            return random.randint(self.x1 + 1, self.x2), self.y1
+        elif side == 1:
+            return self.x2, random.randint(self.y1 + 1, self.y2)
+        elif side == 2:
+            return random.randint(self.x1 + 1, self.x2), self.y2
+        elif side == 3:
+            return self.x1, random.randint(self.y1 + 1, self.y2)
 
 
 def tunnel_between(
@@ -87,7 +103,7 @@ def generate_dungeon(
             continue  # This room intersects, so go to the next attempt.
         # If there are no intersections then the room is valid.
 
-        # Dig out this rooms inner area.
+        # Dig out this room's inner area.
         dungeon.tiles[new_room.inner] = tile_types.floor
 
         if len(rooms) == 0:
@@ -116,6 +132,43 @@ def generate_dungeon(
 
         # Finally, append the new room to the list.
         rooms.append(new_room)
+
+    return dungeon
+
+# doesnt work pls dont use
+
+
+def generate_dungeon_2(
+    room_min_size: int,
+    room_max_size: int,
+    map_width: int,
+    map_height: int,
+    player: Entity,
+) -> GameMap:
+    dungeon = GameMap(map_width, map_height)
+
+    rooms: List[RectangularRoom] = []
+
+    room_width = random.randint(room_min_size, room_max_size)
+    room_height = random.randint(room_min_size, room_max_size)
+
+    first_room_x = int(map_width/2 - room_width/2)
+    first_room_y = int(map_height/2 - room_height/2)
+
+    player.x = int(map_width/2)
+    player.y = int(map_height/2)
+
+    new_room = RectangularRoom(first_room_x, first_room_y, room_width, room_height)
+    dungeon.tiles[new_room.inner] = tile_types.floor
+
+    rooms.append(new_room)
+
+    while True:
+        dungeon.tiles[new_room.pick_random_wall()] = tile_types.door
+
+
+
+
 
 
     return dungeon

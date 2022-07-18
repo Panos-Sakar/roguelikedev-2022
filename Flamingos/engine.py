@@ -38,11 +38,12 @@ class Engine:
         self.game_map.explored |= self.game_map.visible
 
     def render(self, console: Console, context: Context) -> None:
-        self.game_map.render(console)
+        self.game_map.render(console, self.player)
         for entity in self.entities:
             # Only print entities that are in the FOV
             if self.game_map.visible[entity.x, entity.y]:
                 console.print(entity.x, entity.y, entity.char, fg=entity.color)
-
+        console.print(self.player.x - self.game_map.camera_top_x, self.player.y - self.game_map.camera_top_y, self.player.char, fg = self.player.color)
+        #console.print(self.player.x , self.player.y , self.player.char, fg = self.player.color)
         context.present(console)
         console.clear()
