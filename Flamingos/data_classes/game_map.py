@@ -21,6 +21,8 @@ class GameMap:
         self.camera_bottom_x = 0
         self.camera_top_y = 0
         self.camera_bottom_y = 0
+        self.total_discoverable_tiles = 0
+        self.is_floor = np.full((width, height), fill_value=False, order="F")
 
     def get_blocking_entity_at_location(self, location_x: int, location_y: int) -> Optional[Entity]:
         for entity in self.entities:
@@ -36,9 +38,9 @@ class GameMap:
 
         self.update_camera_points(console, player)
 
-        dummy_visible = self.visible[self.camera_top_x : self.camera_bottom_x, self.camera_top_y : self.camera_bottom_y]
-        dummy_explored = self.explored[self.camera_top_x : self.camera_bottom_x, self.camera_top_y : self.camera_bottom_y]
-        dummy_tiles = self.tiles[self.camera_top_x : self.camera_bottom_x, self.camera_top_y : self.camera_bottom_y]
+        dummy_visible = self.visible[self.camera_top_x: self.camera_bottom_x, self.camera_top_y: self.camera_bottom_y]
+        dummy_explored = self.explored[self.camera_top_x: self.camera_bottom_x, self.camera_top_y: self.camera_bottom_y]
+        dummy_tiles = self.tiles[self.camera_top_x: self.camera_bottom_x, self.camera_top_y: self.camera_bottom_y]
 
         console.tiles_rgb[0:self.width, 0:self.height] = np.select(
             condlist=[dummy_visible, dummy_explored],
@@ -49,6 +51,12 @@ class GameMap:
             # Only print entities that are in the FOV
             if self.visible[entity.x, entity.y]:
                 console.print(entity.x - self.camera_top_x, entity.y - self.camera_top_y, entity.char, fg=entity.color)
+
+        #tmp2 = np.count_nonzero(np.logical_and(np.logical_or(self.visible, self.explored), self.is_floor))
+        tmp2 = np.count_nonzero(np.logical_and(self.explored, self.is_floor))
+        print(tmp2)
+
+        console.print(0, 0, str(int((tmp2 / self.total_discoverable_tiles)*100)) + " % discovered", fg=(255, 255, 255))
 
     def update_camera_points(self, console: Console, player: Entity) -> None:
         self.camera_top_x = (player.x - int(console.width / 2))
@@ -69,8 +77,4 @@ class GameMap:
             self.camera_bottom_y = self.height
             self.camera_top_y = self.height - console.height
 
-        #print(self.camera_top_x, " ", self.camera_bottom_x, " ", self.camera_top_y, " ", self.camera_bottom_y)
-
-
-
-
+        # print(self.camera_top_x, " ", self.camera_bottom_x, " ", self.camera_top_y, " ", self.camera_bottom_y)

@@ -2,6 +2,8 @@ from __future__ import annotations
 import random
 
 from typing import Iterator, Tuple, List, TYPE_CHECKING
+
+import numpy as np
 import tcod
 from data_classes.game_map import GameMap
 import data_classes.tile_types as tile_types
@@ -152,6 +154,12 @@ def generate_dungeon(
         rooms.append(new_room)
     for room in rooms:
         room.place_doors(dungeon)
+
+    for x in range(0, dungeon.width):
+        for y in range(0, dungeon.height):
+            if dungeon.tiles[x][y] == tile_types.floor:
+                dungeon.is_floor[x][y] = True
+    dungeon.total_discoverable_tiles = np.count_nonzero(dungeon.is_floor)
     return dungeon
 
 # doesnt work pls dont use
